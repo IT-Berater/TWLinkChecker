@@ -2,7 +2,6 @@ package de.wenzlaff.linkchecker;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,9 +37,10 @@ public class CheckExcelUrls {
 	 * @param args
 	 *            Spalte die Überprüft werden soll und der Dateiname Aufruf z.B.: de.wenzlaff.linkchecker.CheckExcelUrls
 	 *            25 exceldatei.xlsx
-	 * @throws IOException
+	 * @throws Exception
+	 *             alle Fehler
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		if (args.length != 2) {
 			hilfeTextAusgeben();
