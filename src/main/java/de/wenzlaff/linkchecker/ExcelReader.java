@@ -12,13 +12,6 @@ import org.apache.commons.csv.CSVParser;
 /**
  * Basis Excel Reader für CSV Dateien.
  * 
- * <pre>
-          <dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-csv</artifactId>
-		    <version>1.5</version>
-		</dependency>
- * </pre>
  * 
  * @author Thomas Wenzlaff
  *
@@ -34,6 +27,7 @@ public class ExcelReader {
 	 *            die File URI
 	 * @return der CSVParser
 	 * @throws IOException
+	 *             bei lese Fehler
 	 */
 	public CSVParser read(URI uri) throws IOException {
 
