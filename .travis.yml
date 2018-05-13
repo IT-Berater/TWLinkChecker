@@ -6,6 +6,12 @@ jdk:
   - oraclejdk8
   
 script: 
+# Für Maven
+#  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  
+#  - mvn cobertura:cobertura
+
+# Für Gradle
 
   gradle check
 
