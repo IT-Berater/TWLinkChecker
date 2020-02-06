@@ -3,15 +3,15 @@ language: java
 sudo: false 
 
 jdk:
-  - oraclejdk8
+  - openjdk8
   
 script: 
-# Für Maven
+# FÃ¼r Maven
 #  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
   
 #  - mvn cobertura:cobertura
 
-# Für Gradle
+# FÃ¼r Gradle
 
   gradle check
 
