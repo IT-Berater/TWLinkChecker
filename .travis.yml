@@ -6,14 +6,9 @@ jdk:
   - openjdk8
   
 script: 
-# Für Maven
-#  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  - mvn clean install
   
-#  - mvn cobertura:cobertura
-
-# Für Gradle
-
-  gradle check
+  - mvn cobertura:cobertura
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
