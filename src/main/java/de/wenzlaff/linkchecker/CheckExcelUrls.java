@@ -34,11 +34,11 @@ public class CheckExcelUrls {
 	/**
 	 * Start des Url Checker.
 	 * 
-	 * @param args
-	 *            Spalte die Überprüft werden soll und der Dateiname Aufruf z.B.: de.wenzlaff.linkchecker.CheckExcelUrls
-	 *            25 exceldatei.xlsx
-	 * @throws Exception
-	 *             alle Fehler
+	 * @param args Spalte die Überprüft werden soll und der Dateiname Aufruf z.B.:
+	 * 
+	 *             de.wenzlaff.linkchecker.CheckExcelUrls 28 exceldatei.xlsx
+	 * 
+	 * @throws Exception alle Fehler
 	 */
 	public static void main(String[] args) throws Exception {
 
@@ -113,8 +113,8 @@ public class CheckExcelUrls {
 
 	private static void hilfeTextAusgeben() {
 		System.out.println(
-				"Programmaufruf: de.wenzlaff.linkchecker.CheckExcelUrls [Spalte mit den URLs die überprüft werden soll] [Excel Dateiname] ");
-		System.out.println("Aufruf z.B.: de.wenzlaff.linkchecker.CheckExcelUrls 25 exceldatei.xlsx");
+				"Programmaufruf: de.wenzlaff.linkchecker.CheckExcelUrls [Spalte Nummer von links mit den URLs die überprüft werden soll] [Excel Dateiname] ");
+		System.out.println("Aufruf z.B.: de.wenzlaff.linkchecker.CheckExcelUrls 28 exceldatei.xlsx");
 
 	}
 
@@ -131,13 +131,11 @@ public class CheckExcelUrls {
 				webseite = new URL(zeile.getUrl());
 
 				if (getStatus(webseite.toString()).contains(STATUS_ERROR)) {
-					System.err.println("Fehler Nr. " + fehlerNr + " ZeilenId: " + zeile.getId() + "\t"
-							+ getStatus(webseite.toString()));
+					System.err.println("Fehler Nr. " + fehlerNr + " ZeilenId: " + zeile.getId() + "\t" + getStatus(webseite.toString()));
 					fehlerNr++;
 				}
 			} catch (Exception e) {
-				System.err.println("Fehler Nr. " + fehlerNr + " Fehler " + e.getMessage() + " in Zeile: " + zeile
-						+ " mit URL: " + webseite);
+				System.err.println("Fehler Nr. " + fehlerNr + " Fehler " + e.getMessage() + " in Zeile: " + zeile + " mit URL: " + webseite);
 				fehlerNr++;
 			}
 		}
@@ -151,8 +149,7 @@ public class CheckExcelUrls {
 		147	 ERROR, 400, http://www.klein hirn.eu
 	 * </pre>
 	 * 
-	 * @param url
-	 *            die zu testende URL
+	 * @param url die zu testende URL
 	 * @return der Status
 	 */
 	private static String getStatus(String url) {
