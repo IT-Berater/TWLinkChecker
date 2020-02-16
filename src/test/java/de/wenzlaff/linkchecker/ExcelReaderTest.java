@@ -31,7 +31,6 @@ public class ExcelReaderTest {
 
 		System.out.println("Parser: " + reader);
 
-		reader.close();
 	}
 
 	private void printRecords(CSVParser csvParser) {

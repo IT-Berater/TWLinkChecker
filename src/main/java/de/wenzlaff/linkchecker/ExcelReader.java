@@ -18,40 +18,21 @@ import org.apache.commons.csv.CSVParser;
  */
 public class ExcelReader {
 
-	private CSVParser parser;
+	private static final char TRENNZEICHEN = ';';
 
 	/**
 	 * Liest die Excel Datei ein.
 	 * 
-	 * @param uri
-	 *            die File URI
+	 * @param dateiUri die File URI
 	 * @return der CSVParser
-	 * @throws IOException
-	 *             bei lese Fehler
+	 * @throws IOException bei lese Fehler
 	 */
-	public CSVParser read(URI uri) throws IOException {
+	public CSVParser read(URI dateiUri) throws IOException {
 
-		BufferedReader reader = Files.newBufferedReader(Paths.get(uri));
+		BufferedReader reader = Files.newBufferedReader(Paths.get(dateiUri));
 
-		parser = new CSVParser(reader, CSVFormat.EXCEL.withDelimiter(';').withHeader().withIgnoreHeaderCase().withTrim());
-
-		return parser;
-	}
-
-	public void close() {
-		try {
-			parser.close();
-		} catch (IOException e) {
-			System.err.println("Konnte Parser nicht schließen. " + e.getMessage());
-		}
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return "BasicCsvReader [Zeilen= " + parser.getRecords().size() + " Titel=" + parser.getHeaderMap().keySet() + "]";
-		} catch (IOException e) {
-			return "IOException " + e.getMessage();
+		try (CSVParser parser = new CSVParser(reader, CSVFormat.EXCEL.withDelimiter(TRENNZEICHEN).withHeader().withIgnoreHeaderCase().withTrim())) {
+			return parser;
 		}
 	}
 

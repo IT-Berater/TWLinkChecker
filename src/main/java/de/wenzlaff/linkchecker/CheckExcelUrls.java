@@ -50,60 +50,62 @@ public class CheckExcelUrls {
 		int spaltenNummer = Integer.valueOf(args[0]);
 		String excelDateiName = args[1];
 
-		zeilen = new ArrayList<Zeile>();
+		zeilen = new ArrayList<>();
 
 		System.out.println("Lese alle Zeilen aus der Excel Datei " + excelDateiName);
-		FileInputStream inputStream = new FileInputStream(new File(excelDateiName));
 
-		Workbook workbook = new XSSFWorkbook(inputStream);
-		Sheet firstSheet = workbook.getSheetAt(0);
-		Iterator<Row> iterator = firstSheet.iterator();
+		try (FileInputStream inputStream = new FileInputStream(new File(excelDateiName))) {
 
-		int maxSpalten = firstSheet.getRow(0).getLastCellNum();
-		System.out.println("Anzahl der Spalten der Tabelle: " + maxSpalten);
-		String sheetName = firstSheet.getSheetName();
-		System.out.println("Verwende Blatt " + sheetName);
+			try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+				Sheet firstSheet = workbook.getSheetAt(0);
+				Iterator<Row> iterator = firstSheet.iterator();
 
-		while (iterator.hasNext()) { // über alle Zeilen
-			Row nextRow = iterator.next();
-			Iterator<Cell> cellIterator = nextRow.cellIterator();
+				int maxSpalten = firstSheet.getRow(0).getLastCellNum();
+				System.out.println("Anzahl der Spalten der Tabelle: " + maxSpalten);
+				String sheetName = firstSheet.getSheetName();
+				System.out.println("Verwende Blatt " + sheetName);
 
-			Zeile zeile = new Zeile();
+				while (iterator.hasNext()) { // über alle Zeilen
+					Row nextRow = iterator.next();
+					Iterator<Cell> cellIterator = nextRow.cellIterator();
 
-			while (cellIterator.hasNext()) {
-				Cell nextCell = cellIterator.next();
-				int columnIndex = nextCell.getColumnIndex();
+					Zeile zeile = new Zeile();
 
-				if (columnIndex == SPALTE_ID) { // Spaltennummer muss vorhanden sein
-					// Entferne .0 da Spalte evl. als Zahl mit Nachkomma formatiert
-					Object wert = getCellValue(nextCell);
-					if (wert != null) {
-						String replace = wert.toString().replace(".0", "");
-						zeile.setId(replace);
-					} else {
-						zeile.setId("");
+					while (cellIterator.hasNext()) {
+						Cell nextCell = cellIterator.next();
+						int columnIndex = nextCell.getColumnIndex();
+
+						if (columnIndex == SPALTE_ID) { // Spaltennummer muss vorhanden sein
+							// Entferne .0 da Spalte evl. als Zahl mit Nachkomma formatiert
+							Object wert = getCellValue(nextCell);
+							if (wert != null) {
+								String replace = wert.toString().replace(".0", "");
+								zeile.setId(replace);
+							} else {
+								zeile.setId("");
+							}
+						} else if (columnIndex == spaltenNummer) {
+							zeile.setUrl((String) getCellValue(nextCell));
+						}
 					}
-				} else if (columnIndex == spaltenNummer) {
-					zeile.setUrl((String) getCellValue(nextCell));
+					try {
+						if (isTitelzeile(zeile)) {
+							zeilen.add(zeile);
+							System.out.println("Eingelesen " + zeile);
+						}
+					} catch (Exception e) {
+						System.err.println("Fehler in Zeile: " + zeile + " Exception:" + e);
+					}
 				}
-			}
-			try {
-				if (isTitelzeile(zeile)) {
-					zeilen.add(zeile);
-					System.out.println("Eingelesen " + zeile);
-				}
-			} catch (Exception e) {
-				System.err.println("Fehler in Zeile: " + zeile + " Exception:" + e);
 			}
 		}
-		workbook.close();
-		inputStream.close();
 
 		System.out.println(zeilen.size() + " gelesene Zeilen aus der Tabelle " + excelDateiName);
+		System.out.println("Checke nun den Online Status aller URLs ...");
 
 		checkOnlineStatus();
 
-		System.out.println("Erfolgreicher check abgeschlossen.");
+		System.out.println("Online Check abgeschlossen.");
 	}
 
 	private static boolean isTitelzeile(Zeile zeile) {
