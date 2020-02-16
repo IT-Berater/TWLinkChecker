@@ -30,7 +30,7 @@ public class Zeile {
 
 	@Override
 	public String toString() {
-		return "Zeile [id=" + id + ", url=" + url + "]";
+		return "Zeile [id=" + id + ", " + url + "]";
 	}
 
 }
