@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -53,6 +54,7 @@ public class CheckExcelUrls {
 		zeilen = new ArrayList<>();
 
 		System.out.println("Lese alle Zeilen aus der Excel Datei " + excelDateiName);
+		System.out.println("Validiere die " + spaltenNummer + ". Spalte in der Excel-Datei mit Namen: " + CellReference.convertNumToColString(spaltenNummer));
 
 		try (FileInputStream inputStream = new FileInputStream(new File(excelDateiName))) {
 
