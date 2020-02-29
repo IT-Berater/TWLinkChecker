@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/IT-Berater/TWLinkChecker/branch/master/graph/badge.svg)](https://codecov.io/gh/IT-Berater/TWLinkChecker) 
 [![Github Releases](https://img.shields.io/github/downloads/atom/atom/latest/total.svg)](https://github.com/IT-Berater/TWLinkChecker)
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](https://github.com/IT-Berater/TWLinkChecker)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.wenzlaff.TWLinkChecker/de.wenzlaff.TWLinkChecker/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.wenzlaff.TWLinkChecker/de.wenzlaff.TWLinkChecker)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.wenzlaff.linkchecker/de.wenzlaff.linkchecker/badge.svg)](https://search.maven.org/search?q=de.wenzlaff.linkchecker)
 
 # TWLinkChecker
 Excel Link checker
