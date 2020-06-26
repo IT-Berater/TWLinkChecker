@@ -7,6 +7,10 @@
 # TWLinkChecker
 Excel Link checker
 
-Programm zum checken von URLs in Exceltabellen. Es wird die Syntax und die Erreichbarkeit der URLs Ã¼berprÃ¼ft.
+Programm zum checken von URLs in Exceltabellen. Es wird die Syntax und die Erreichbarkeit der URLs überprüft.
 
-Braucht nun mindestens Java 11
+Braucht nun mindestens Java 11.
+
+Programmaufruf: de.wenzlaff.linkchecker.CheckExcelUrls (Spalte Nummer von links mit den URLs die überprüft werden soll) (Excel Dateiname)
+
+Aufruf z.B.: de.wenzlaff.linkchecker.CheckExcelUrls 28 exceldatei.xlsx
