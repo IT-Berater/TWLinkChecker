@@ -11,7 +11,9 @@ Programm zum checken von URLs in Exceltabellen. Es wird die Syntax und die Errei
 
 Braucht nun mindestens Java 11.
 
-Programmaufruf: de.wenzlaff.linkchecker.CheckExcelUrls (Spalte Nummer von links mit den URLs die überprüft werden soll) (Excel Dateiname)
+Programmaufruf: 
+
+de.wenzlaff.linkchecker.CheckExcelUrls (Spalte Nummer von links mit den URLs die überprüft werden soll) (Excel Dateiname)
 
 Aufruf z.B.: de.wenzlaff.linkchecker.CheckExcelUrls 28 exceldatei.xlsx
 
