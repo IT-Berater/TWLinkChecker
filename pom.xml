@@ -29,7 +29,6 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
 	<developers>
 		<developer>
 			<name>Thomas Wenzlaff</name>
@@ -173,7 +172,6 @@
 			</plugin>		
 		</plugins>
 	</build>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
