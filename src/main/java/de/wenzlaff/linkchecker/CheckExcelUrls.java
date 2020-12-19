@@ -22,7 +22,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * Es werden alle falschen URLs ausgegeben.
  * 
  * @author Thomas Wenzlaff
- *
  */
 public class CheckExcelUrls {
 
