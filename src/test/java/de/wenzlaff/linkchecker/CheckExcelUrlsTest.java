@@ -1,6 +1,6 @@
 package de.wenzlaff.linkchecker;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 /**
  * Testklasse für den URL Checker.

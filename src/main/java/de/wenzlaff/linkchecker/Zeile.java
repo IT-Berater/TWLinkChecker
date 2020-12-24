@@ -32,4 +32,5 @@ public class Zeile {
 	public String toString() {
 		return "Zeile [id=" + id + ", " + url + "]";
 	}
+
 }

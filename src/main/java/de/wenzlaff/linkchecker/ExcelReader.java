@@ -1,5 +1,6 @@
 package de.wenzlaff.linkchecker;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -28,9 +29,11 @@ public class ExcelReader {
 	 */
 	public CSVParser read(URI dateiUri) throws IOException {
 
-		try (CSVParser parser = new CSVParser(Files.newBufferedReader(Paths.get(dateiUri)),
-				CSVFormat.EXCEL.withDelimiter(TRENNZEICHEN).withHeader().withIgnoreHeaderCase().withTrim())) {
+		BufferedReader reader = Files.newBufferedReader(Paths.get(dateiUri));
+
+		try (CSVParser parser = new CSVParser(reader, CSVFormat.EXCEL.withDelimiter(TRENNZEICHEN).withHeader().withIgnoreHeaderCase().withTrim())) {
 			return parser;
 		}
 	}
+
 }
