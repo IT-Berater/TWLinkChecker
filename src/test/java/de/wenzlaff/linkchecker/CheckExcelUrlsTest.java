@@ -1,6 +1,10 @@
 package de.wenzlaff.linkchecker;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.Test;
+
+import picocli.CommandLine;
 
 /**
  * Testklasse für den URL Checker.
@@ -13,43 +17,42 @@ public class CheckExcelUrlsTest {
 	private static final String EXCEL_LISTE = "src/test/resources/de/wenzlaff/linkchecker/test.xlsx";
 
 	@Test
-	public void testNegMainKeineParam() throws Exception {
+	public void testHilfeText() throws Exception {
 
-		String[] argv = {};
+		CheckExcelUrls app = new CheckExcelUrls();
+		CommandLine cmd = new CommandLine(app);
 
-		CheckExcelUrls.main(argv);
+		int exitCode = cmd.execute("--Help");
+		assertEquals(2, exitCode);
 	}
 
 	@Test
-	public void testNegMainEineParam() throws Exception {
+	public void testVersionText() throws Exception {
 
-		String[] argv = { "25" };
+		CheckExcelUrls app = new CheckExcelUrls();
+		CommandLine cmd = new CommandLine(app);
 
-		CheckExcelUrls.main(argv);
+		int exitCode = cmd.execute("--Version");
+		assertEquals(2, exitCode);
 	}
 
 	@Test
-	public void testNegMainDreiParam() throws Exception {
+	public void testMainPositivTest() throws Exception {
 
-		String[] argv = { "25", EXCEL_LISTE, "42" };
+		CheckExcelUrls app = new CheckExcelUrls();
+		CommandLine cmd = new CommandLine(app);
 
-		CheckExcelUrls.main(argv);
+		int exitCode = cmd.execute("-s", "25", "-f", EXCEL_LISTE);
+		assertEquals(0, exitCode);
 	}
 
 	@Test
-	public void testMain() throws Exception {
+	public void testMainDefaultValue() throws Exception {
 
-		String[] argv = { "25", EXCEL_LISTE };
+		CheckExcelUrls app = new CheckExcelUrls();
+		CommandLine cmd = new CommandLine(app);
 
-		CheckExcelUrls.main(argv);
+		int exitCode = cmd.execute();
+		assertEquals(1, exitCode);
 	}
-
-	@Test
-	public void testMainOhne() throws Exception {
-
-		String[] argv = { "2", EXCEL_LISTE };
-
-		CheckExcelUrls.main(argv);
-	}
-
 }
