@@ -2,7 +2,7 @@ package de.wenzlaff.linkchecker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import picocli.CommandLine;
 
@@ -10,7 +10,6 @@ import picocli.CommandLine;
  * Testklasse für den URL Checker.
  * 
  * @author Thomas Wenzlaff
- *
  */
 public class CheckExcelUrlsTest {
 

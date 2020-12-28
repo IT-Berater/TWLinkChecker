@@ -4,7 +4,6 @@ package de.wenzlaff.linkchecker;
  * Eine Zeile in der Excel Tabelle.
  * 
  * @author Thomas Wenzlaff
- *
  */
 public class Zeile {
 
@@ -32,5 +31,4 @@ public class Zeile {
 	public String toString() {
 		return "Zeile [id=" + id + ", " + url + "]";
 	}
-
 }

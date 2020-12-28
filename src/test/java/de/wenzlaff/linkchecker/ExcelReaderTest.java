@@ -12,7 +12,6 @@ import org.junit.Test;
  * Testklasse für den Excelreader.
  * 
  * @author Thomas Wenzlaff
- *
  */
 public class ExcelReaderTest {
 
@@ -30,7 +29,6 @@ public class ExcelReaderTest {
 		printRecords(csvParser);
 
 		System.out.println("Parser: " + reader);
-
 	}
 
 	private void printRecords(CSVParser csvParser) {
@@ -53,5 +51,4 @@ public class ExcelReaderTest {
 			System.out.println(csvRecord);
 		}
 	}
-
 }

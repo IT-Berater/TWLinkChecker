@@ -29,7 +29,6 @@ import picocli.CommandLine.Option;
  * Es werden alle falschen URLs ausgegeben.
  * 
  * @author Thomas Wenzlaff
- *
  */
 @Command(name = "CheckExcelUrls", mixinStandardHelpOptions = true, version = "CheckExcelUrls 1.0", description = "Untersucht eine Exceldatei auf gültige URLs in einer Spalte", footer = {
 		"@|fg(green) Thomas Wenzlaff|@", "@|fg(red),bold http://www.wenzlaff.info|@" })
@@ -58,9 +57,8 @@ public class CheckExcelUrls implements Callable<Integer> {
 	 *             de.wenzlaff.linkchecker.CheckExcelUrls -s 28 -f
 	 *             /Users/TWLinkChecker/exceldatei.xlsx
 	 * 
-	 * @throws Exception alle Fehler
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 
 		int exitCode = new CommandLine(new CheckExcelUrls()).execute(args);
 		System.exit(exitCode);

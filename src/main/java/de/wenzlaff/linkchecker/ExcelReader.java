@@ -14,7 +14,6 @@ import org.apache.commons.csv.CSVParser;
  * 
  * 
  * @author Thomas Wenzlaff
- *
  */
 public class ExcelReader {
 
@@ -35,5 +34,4 @@ public class ExcelReader {
 			return parser;
 		}
 	}
-
 }
