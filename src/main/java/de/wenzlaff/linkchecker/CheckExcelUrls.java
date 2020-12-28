@@ -7,7 +7,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -15,6 +18,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 /**
  * Klasse zum testen der URLs einer Excel-Datei auf Gültigkeit.
@@ -24,37 +31,47 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author Thomas Wenzlaff
  *
  */
-public class CheckExcelUrls {
+@Command(name = "CheckExcelUrls", mixinStandardHelpOptions = true, version = "CheckExcelUrls 1.0", description = "Untersucht eine Exceldatei auf gültige URLs in einer Spalte", footer = {
+		"@|fg(green) Thomas Wenzlaff|@", "@|fg(red),bold http://www.wenzlaff.info|@" })
+public class CheckExcelUrls implements Callable<Integer> {
+
+	private static final Logger LOG = LogManager.getLogger(CheckExcelUrls.class);
 
 	private static final int TIMEOUT_IN_MILLISEKUNDEN = 5000;
 	private static final String TRENNZEICHEN = ", ";
 	private static final int SPALTE_ID = 0;
 	private static final String STATUS_ERROR = "ERROR";
+
 	private static List<Zeile> zeilen;
+
+	@Option(names = { "-s", "--spaltennummer" }, description = "die Spalte Nummer die verwendet werden soll", defaultValue = "28")
+	private int spaltenNumme;
+
+	@Option(names = { "-f", "--execldateiname" }, description = "der Dateiname der Exceldatei die untersucht werden soll", defaultValue = "exceldatei.xlsx")
+	private String excelDateiName;
 
 	/**
 	 * Start des Url Checker.
 	 * 
 	 * @param args Spalte die Überprüft werden soll und der Dateiname Aufruf z.B.:
 	 * 
-	 *             de.wenzlaff.linkchecker.CheckExcelUrls 28 exceldatei.xlsx
+	 *             de.wenzlaff.linkchecker.CheckExcelUrls -s 28 -f
+	 *             /Users/TWLinkChecker/exceldatei.xlsx
 	 * 
 	 * @throws Exception alle Fehler
 	 */
 	public static void main(String[] args) throws Exception {
 
-		if (args.length != 2) {
-			hilfeTextAusgeben();
-			return;
-		}
+		int exitCode = new CommandLine(new CheckExcelUrls()).execute(args);
+		System.exit(exitCode);
+	}
 
-		int spaltenNummer = Integer.valueOf(args[0]);
-		String excelDateiName = args[1];
-
+	@Override
+	public Integer call() throws Exception {
 		zeilen = new ArrayList<>();
 
-		System.out.println("Lese alle Zeilen aus der Excel Datei " + excelDateiName);
-		System.out.println("Validiere die " + spaltenNummer + ". Spalte in der Excel-Datei mit Namen: " + CellReference.convertNumToColString(spaltenNummer));
+		LOG.info("Lese alle Zeilen aus der Excel Datei " + excelDateiName);
+		LOG.info("Validiere die " + spaltenNumme + ". Spalte in der Excel-Datei mit Namen: " + CellReference.convertNumToColString(spaltenNumme));
 
 		try (FileInputStream inputStream = new FileInputStream(new File(excelDateiName))) {
 
@@ -63,9 +80,9 @@ public class CheckExcelUrls {
 				Iterator<Row> iterator = firstSheet.iterator();
 
 				int maxSpalten = firstSheet.getRow(0).getLastCellNum();
-				System.out.println("Anzahl der Spalten der Tabelle: " + maxSpalten);
+				LOG.info("Anzahl der Spalten der Tabelle: " + maxSpalten);
 				String sheetName = firstSheet.getSheetName();
-				System.out.println("Verwende Blatt " + sheetName);
+				LOG.info("Verwende Blatt " + sheetName);
 
 				while (iterator.hasNext()) { // über alle Zeilen
 					Row nextRow = iterator.next();
@@ -86,40 +103,35 @@ public class CheckExcelUrls {
 							} else {
 								zeile.setId("");
 							}
-						} else if (columnIndex == spaltenNummer) {
+						} else if (columnIndex == spaltenNumme) {
 							zeile.setUrl((String) getCellValue(nextCell));
 						}
 					}
 					try {
 						if (isTitelzeile(zeile)) {
 							zeilen.add(zeile);
-							System.out.println("Eingelesen " + zeile);
+							LOG.info("Eingelesen " + zeile);
 						}
 					} catch (Exception e) {
-						System.err.println("Fehler in Zeile: " + zeile + " Exception:" + e);
+						LOG.error("Fehler in Zeile: " + zeile + " Exception:" + e);
 					}
 				}
 			}
 		}
 
-		System.out.println(zeilen.size() + " gelesene Zeilen aus der Tabelle " + excelDateiName);
-		System.out.println("Checke nun den Online Status aller URLs ...");
+		LOG.info(zeilen.size() + " gelesene Zeilen aus der Tabelle " + excelDateiName);
+		LOG.info("Checke nun den Online Status aller URLs ...");
 
 		checkOnlineStatus();
 
-		System.out.println("Online Check abgeschlossen.");
+		LOG.info("Online Check abgeschlossen.");
+
+		return 0;
 	}
 
 	private static boolean isTitelzeile(Zeile zeile) {
 		// keine Titelzeile einlesen, das heisst überprüfe auf Nr in erster Spalte!
 		return zeile.getId() != null && !zeile.getId().equals("Nr");
-	}
-
-	private static void hilfeTextAusgeben() {
-		System.out.println(
-				"Programmaufruf: de.wenzlaff.linkchecker.CheckExcelUrls [Spalte Nummer von links mit den URLs die überprüft werden soll] [Excel Dateiname] ");
-		System.out.println("Aufruf z.B.: de.wenzlaff.linkchecker.CheckExcelUrls 28 exceldatei.xlsx");
-
 	}
 
 	synchronized private static void checkOnlineStatus() {
@@ -135,11 +147,11 @@ public class CheckExcelUrls {
 				webseite = new URL(zeile.getUrl());
 
 				if (getStatus(webseite.toString()).contains(STATUS_ERROR)) {
-					System.err.println("Fehler Nr. " + fehlerNr + " ZeilenId: " + zeile.getId() + "\t" + getStatus(webseite.toString()));
+					LOG.error("Fehler Nr. " + fehlerNr + " ZeilenId: " + zeile.getId() + "\t" + getStatus(webseite.toString()));
 					fehlerNr++;
 				}
 			} catch (Exception e) {
-				System.err.println("Fehler Nr. " + fehlerNr + " Fehler " + e.getMessage() + " in Zeile: " + zeile + " mit URL: " + webseite);
+				LOG.error("Fehler Nr. " + fehlerNr + " Fehler " + e.getMessage() + " in Zeile: " + zeile + " mit URL: " + webseite);
 				fehlerNr++;
 			}
 		}
@@ -191,5 +203,4 @@ public class CheckExcelUrls {
 		}
 		return null;
 	}
-
 }
