@@ -2,6 +2,8 @@ package de.wenzlaff.linkchecker;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONObject;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -56,7 +59,8 @@ public class CheckExcelUrls implements Callable<Integer> {
 	/**
 	 * Start des Url Checker.
 	 * 
-	 * @param args Spalte die Überprüft werden soll und der Dateiname Aufruf z.B.:
+	 * @param args Spalte die Überprüft werden soll und der Dateiname Aufruf
+	 *             z.B.:
 	 * 
 	 *             de.wenzlaff.linkchecker.CheckExcelUrls -s 28 -f
 	 *             /Users/TWLinkChecker/exceldatei.xlsx
@@ -64,8 +68,7 @@ public class CheckExcelUrls implements Callable<Integer> {
 	 */
 	public static void main(String[] args) {
 
-		int exitCode = new CommandLine(new CheckExcelUrls())
-				.execute(args);
+		int exitCode = new CommandLine(new CheckExcelUrls()).execute(args);
 		System.exit(exitCode);
 	}
 
@@ -73,69 +76,32 @@ public class CheckExcelUrls implements Callable<Integer> {
 	public Integer call() throws Exception {
 		zeilen = new ArrayList<>();
 
-		LOG.info("Lese alle Zeilen aus der Excel Datei "
-				+ excelDateiName);
+		LOG.info("Lese alle Zeilen aus der Excel Datei " + excelDateiName);
 		LOG.info("Validiere die " + spaltenNumme
 				+ ". Spalte in der Excel-Datei mit Namen: "
-				+ CellReference
-						.convertNumToColString(spaltenNumme));
+				+ CellReference.convertNumToColString(spaltenNumme));
 
 		try (FileInputStream inputStream = new FileInputStream(
 				new File(excelDateiName))) {
 
-			try (Workbook workbook = new XSSFWorkbook(
-					inputStream)) {
+			try (Workbook workbook = new XSSFWorkbook(inputStream)) {
 				Sheet firstSheet = workbook.getSheetAt(0);
 				Iterator<Row> iterator = firstSheet.iterator();
 
-				int maxSpalten = firstSheet.getRow(0)
-						.getLastCellNum();
-				LOG.info("Anzahl der Spalten der Tabelle: "
-						+ maxSpalten);
+				int maxSpalten = firstSheet.getRow(0).getLastCellNum();
+				LOG.info("Anzahl der Spalten der Tabelle: " + maxSpalten);
 				String sheetName = firstSheet.getSheetName();
 				LOG.info("Verwende Blatt " + sheetName);
 
+				writeJson(iterator);
+
 				while (iterator.hasNext()) { // über alle Zeilen
-					Row nextRow = iterator.next();
-					Iterator<Cell> cellIterator = nextRow
-							.cellIterator();
-
-					Zeile zeile = new Zeile();
-
-					while (cellIterator.hasNext()) {
-						Cell nextCell = cellIterator.next();
-						int columnIndex = nextCell
-								.getColumnIndex();
-
-						if (columnIndex == SPALTE_ID) { // Spaltennummer muss vorhanden sein
-							// Entferne .0 da Spalte evl. als Zahl mit Nachkomma formatiert
-							Object wert = getCellValue(nextCell);
-							if (wert != null) {
-								String replace = wert.toString()
-										.replace(".0", "");
-								zeile.setId(replace);
-							} else {
-								zeile.setId("");
-							}
-						} else if (columnIndex == spaltenNumme) {
-							zeile.setUrl((String) getCellValue(nextCell));
-						}
-					}
-					try {
-						if (isTitelzeile(zeile)) {
-							zeilen.add(zeile);
-							LOG.info("Eingelesen " + zeile);
-						}
-					} catch (Exception e) {
-						LOG.error("Fehler in Zeile: " + zeile
-								+ " Exception:" + e);
-					}
+					verarbeiteZeilen(iterator);
 				}
 			}
 		}
 
-		LOG.info(zeilen.size()
-				+ " gelesene Zeilen aus der Tabelle "
+		LOG.info(zeilen.size() + " gelesene Zeilen aus der Tabelle "
 				+ excelDateiName);
 		LOG.info("Checke nun den Online Status aller URLs ...");
 
@@ -146,18 +112,163 @@ public class CheckExcelUrls implements Callable<Integer> {
 		return 0;
 	}
 
+	private void writeJson(Iterator<Row> iterator) {
+
+		List<JSONObject> aerzte = new ArrayList<>();
+
+		while (iterator.hasNext()) { // über alle Zeilen
+			Row nextRow = iterator.next();
+			Iterator<Cell> cellIterator = nextRow.cellIterator();
+
+			JSONObject json = new JSONObject();
+
+			while (cellIterator.hasNext()) {
+				Cell nextCell = cellIterator.next();
+
+				int columnIndex = nextCell.getColumnIndex();
+
+				if (columnIndex == 0) {
+
+					Object wert = getCellValue(nextCell);
+					if (wert != null) {
+						String replace = wert.toString().replace(".0", "");
+						json.put("arztNr", replace);
+					} else {
+						json.put("arztNr", "");
+					}
+				}
+				if (columnIndex == 5) {
+					String fachgebiet = nextCell.getStringCellValue();
+					json.put("fachgebiet", fachgebiet);
+				}
+				if (columnIndex == 6) {
+					String fachgebiet1 = nextCell.getStringCellValue();
+					json.put("fachgebiet1", fachgebiet1);
+				}
+				if (columnIndex == 7) {
+					String fachgebiet2 = nextCell.getStringCellValue();
+					json.put("fachgebiet2", fachgebiet2);
+				}
+				if (columnIndex == 8) {
+					String fachgebiet3 = nextCell.getStringCellValue();
+					json.put("fachgebiet3", fachgebiet3);
+				}
+				if (columnIndex == 17) {
+					String krhsName = nextCell.getStringCellValue();
+					json.put("krhsName", krhsName);
+				}
+				if (columnIndex == 20) {
+					String krhsOrt = nextCell.getStringCellValue();
+					json.put("krhsOrt", krhsOrt);
+				}
+				if (columnIndex == 28) {
+					String krhsUrl = nextCell.getStringCellValue();
+					json.put("krhsUrl", krhsUrl);
+				}
+				if (columnIndex == 30) {
+					String arztSpezielleKompetenz = nextCell
+							.getStringCellValue();
+					json.put("arztSpezielleKompetenz", arztSpezielleKompetenz);
+				}
+				if (columnIndex == 31) {
+					String arztSuchbegriffe = nextCell.getStringCellValue();
+					json.put("arztSuchbegriffe", arztSuchbegriffe);
+				}
+			}
+			aerzte.add(json);
+		}
+		try (FileWriter file = new FileWriter("krhs.json")) {
+			file.write(aerzte.toString());
+			file.flush();
+		}
+// 0				Nr
+//				Titel
+//				Name
+//				Vorname
+//				Funktion
+//  5			Fachgebiet
+//	6			weiteres Fachgebiet 1
+//	7			weiteres Fachgebiet 2
+//	8			weiteres Fachgebiet 3
+//				Erwachsene Plan
+//				Erwachsene Not
+//				Kinder Plan
+//				Kinder Not
+//				Kleinkinder Plan
+//				Kleinkiner Not
+//				Seit wann koop.
+//				letzter Kontakt
+//	17			Klinik
+//				Strasse + Nr.
+//				PLZ
+//	20			Ort
+//				Tel Nr
+//				Notfalltelefon
+//				Anästh. kooperativ 
+//				Klinik 2
+//				RAB
+//				Stand RAB
+//				Belegarzt (Ja/Nein)
+// 28			Link Klinikseite
+//				Kommentar
+// 30				Spezielle Kompetenz
+// 31				Suchbegriffe
+//				Zuständiger Betreuer
+//				Focus
+		catch (IOException e) {
+			LOG.error(e.getLocalizedMessage());
+		}
+
+	}
+
+	private void verarbeiteZeilen(Iterator<Row> iterator) {
+		Row nextRow = iterator.next();
+		Iterator<Cell> cellIterator = nextRow.cellIterator();
+
+		Zeile zeile = new Zeile();
+
+		while (cellIterator.hasNext()) {
+			Cell nextCell = cellIterator.next();
+
+			int columnIndex = nextCell.getColumnIndex();
+
+			if (columnIndex == SPALTE_ID) { // Spaltennummer muss
+											// vorhanden sein
+				// Entferne .0 da Spalte evl. als Zahl mit Nachkomma
+				// formatiert
+				Object wert = getCellValue(nextCell);
+				if (wert != null) {
+					String replace = wert.toString().replace(".0", "");
+					zeile.setId(replace);
+				} else {
+					zeile.setId("");
+				}
+			} else if (columnIndex == spaltenNumme) {
+				zeile.setUrl((String) getCellValue(nextCell));
+			}
+		}
+		try {
+			if (isTitelzeile(zeile)) {
+				zeilen.add(zeile);
+				LOG.info("Eingelesen " + zeile);
+			}
+		} catch (Exception e) {
+			LOG.error("Fehler in Zeile: " + zeile + " Exception:" + e);
+		}
+	}
+
 	private static boolean isTitelzeile(Zeile zeile) {
-		// keine Titelzeile einlesen, das heisst überprüfe auf Nr in erster Spalte!
-		return zeile.getId() != null
-				&& !zeile.getId().equals("Nr");
+		// keine Titelzeile einlesen, das heisst überprüfe auf Nr in erster
+		// Spalte!
+		return zeile.getId() != null && !zeile.getId().equals("Nr");
 	}
 
 	synchronized private static void checkOnlineStatus() {
 
 		int fehlerNr = 1;
 
-		for (Iterator<Zeile> zeilenIterator = zeilen
-				.iterator(); zeilenIterator.hasNext();) {
+		for (Iterator<Zeile> zeilenIterator = zeilen.iterator(); zeilenIterator
+				.hasNext();) {
 			Zeile zeile = zeilenIterator.next();
 
 			URL webseite = null;
@@ -165,18 +276,15 @@ public class CheckExcelUrls implements Callable<Integer> {
 			try {
 				webseite = new URL(zeile.getUrl());
 
-				if (getStatus(webseite.toString())
-						.contains(STATUS_ERROR)) {
-					LOG.error("Fehler Nr. " + fehlerNr
-							+ " ZeilenId: " + zeile.getId()
-							+ "\t"
+				if (getStatus(webseite.toString()).contains(STATUS_ERROR)) {
+					LOG.error("Fehler Nr. " + fehlerNr + " ZeilenId: "
+							+ zeile.getId() + "\t"
 							+ getStatus(webseite.toString()));
 					fehlerNr++;
 				}
 			} catch (Exception e) {
-				LOG.error("Fehler Nr. " + fehlerNr + " Fehler "
-						+ e.getMessage() + " in Zeile: " + zeile
-						+ " mit URL: " + webseite);
+				LOG.error("Fehler Nr. " + fehlerNr + " Fehler " + e.getMessage()
+						+ " in Zeile: " + zeile + " mit URL: " + webseite);
 				fehlerNr++;
 			}
 		}
@@ -201,8 +309,7 @@ public class CheckExcelUrls implements Callable<Integer> {
 			HttpURLConnection connection = (HttpURLConnection) siteURL
 					.openConnection();
 			connection.setRequestMethod("GET");
-			connection
-					.setConnectTimeout(TIMEOUT_IN_MILLISEKUNDEN);
+			connection.setConnectTimeout(TIMEOUT_IN_MILLISEKUNDEN);
 			connection.connect();
 
 			int code = connection.getResponseCode();
@@ -211,14 +318,12 @@ public class CheckExcelUrls implements Callable<Integer> {
 				result = " OK, " + code + TRENNZEICHEN;
 			} else if (code >= HttpURLConnection.HTTP_BAD_REQUEST
 					|| code <= HttpURLConnection.HTTP_VERSION) {
-				result = " " + STATUS_ERROR + ", " + code
-						+ TRENNZEICHEN + url;
+				result = " " + STATUS_ERROR + ", " + code + TRENNZEICHEN + url;
 			} else {
 				result = TRENNZEICHEN + code + TRENNZEICHEN;
 			}
 		} catch (Exception e) {
-			result = " " + STATUS_ERROR + ",    , "
-					+ e.getMessage();
+			result = " " + STATUS_ERROR + ",    , " + e.getMessage();
 		}
 		return result;
 	}
