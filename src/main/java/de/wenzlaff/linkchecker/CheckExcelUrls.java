@@ -2,8 +2,6 @@ package de.wenzlaff.linkchecker;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,13 +12,11 @@ import java.util.concurrent.Callable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.json.JSONObject;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -33,7 +29,7 @@ import picocli.CommandLine.Option;
  * 
  * @author Thomas Wenzlaff
  */
-@Command(name = "CheckExcelUrls", mixinStandardHelpOptions = true, version = "CheckExcelUrls 1.0", description = "Untersucht eine Exceldatei auf gültige URLs in einer Spalte", showDefaultValues = true, footer = {
+@Command(name = "CheckExcelUrls", mixinStandardHelpOptions = true, version = "CheckExcelUrls 1.1", description = "Untersucht eine Exceldatei auf gültige URLs in einer Spalte", showDefaultValues = true, footer = {
 		"@|fg(green) Thomas Wenzlaff|@",
 		"@|fg(red),bold http://www.wenzlaff.info|@" })
 public class CheckExcelUrls implements Callable<Integer> {
@@ -55,6 +51,14 @@ public class CheckExcelUrls implements Callable<Integer> {
 	@Option(names = { "-f",
 			"--execldateiname" }, description = "der Dateiname der Exceldatei die untersucht werden soll", defaultValue = "exceldatei.xlsx")
 	private String excelDateiName;
+
+	@Option(names = { "-j",
+			"--json" }, description = "Ist das Flag gesetzt wird eine Json Daten Datei erzeugt und keine Online Prüfung durchgeführt")
+	private boolean generatetJsonData;
+
+	@Option(names = { "-d",
+			"--datadateiname" }, description = "der Dateiname der Exportdatei für den Json Export", defaultValue = "data.json")
+	private String jsonDateiName;
 
 	/**
 	 * Start des Url Checker.
@@ -93,132 +97,29 @@ public class CheckExcelUrls implements Callable<Integer> {
 				String sheetName = firstSheet.getSheetName();
 				LOG.info("Verwende Blatt " + sheetName);
 
-				writeJson(iterator);
-
-				while (iterator.hasNext()) { // über alle Zeilen
-					verarbeiteZeilen(iterator);
-				}
-			}
-		}
-
-		LOG.info(zeilen.size() + " gelesene Zeilen aus der Tabelle "
-				+ excelDateiName);
-		LOG.info("Checke nun den Online Status aller URLs ...");
-
-		checkOnlineStatus();
-
-		LOG.info("Online Check abgeschlossen.");
-
-		return 0;
-	}
-
-	private void writeJson(Iterator<Row> iterator) {
-
-		List<JSONObject> aerzte = new ArrayList<>();
-
-		while (iterator.hasNext()) { // über alle Zeilen
-			Row nextRow = iterator.next();
-			Iterator<Cell> cellIterator = nextRow.cellIterator();
-
-			JSONObject json = new JSONObject();
-
-			while (cellIterator.hasNext()) {
-				Cell nextCell = cellIterator.next();
-
-				int columnIndex = nextCell.getColumnIndex();
-
-				if (columnIndex == 0) {
-
-					Object wert = getCellValue(nextCell);
-					if (wert != null) {
-						String replace = wert.toString().replace(".0", "");
-						json.put("arztNr", replace);
-					} else {
-						json.put("arztNr", "");
+				if (generatetJsonData) {
+					Json.writeJson(iterator, jsonDateiName);
+				} else {
+					while (iterator.hasNext()) { // über alle Zeilen
+						verarbeiteZeilen(iterator);
 					}
 				}
-				if (columnIndex == 5) {
-					String fachgebiet = nextCell.getStringCellValue();
-					json.put("fachgebiet", fachgebiet);
-				}
-				if (columnIndex == 6) {
-					String fachgebiet1 = nextCell.getStringCellValue();
-					json.put("fachgebiet1", fachgebiet1);
-				}
-				if (columnIndex == 7) {
-					String fachgebiet2 = nextCell.getStringCellValue();
-					json.put("fachgebiet2", fachgebiet2);
-				}
-				if (columnIndex == 8) {
-					String fachgebiet3 = nextCell.getStringCellValue();
-					json.put("fachgebiet3", fachgebiet3);
-				}
-				if (columnIndex == 17) {
-					String krhsName = nextCell.getStringCellValue();
-					json.put("krhsName", krhsName);
-				}
-				if (columnIndex == 20) {
-					String krhsOrt = nextCell.getStringCellValue();
-					json.put("krhsOrt", krhsOrt);
-				}
-				if (columnIndex == 28) {
-					String krhsUrl = nextCell.getStringCellValue();
-					json.put("krhsUrl", krhsUrl);
-				}
-				if (columnIndex == 30) {
-					String arztSpezielleKompetenz = nextCell
-							.getStringCellValue();
-					json.put("arztSpezielleKompetenz", arztSpezielleKompetenz);
-				}
-				if (columnIndex == 31) {
-					String arztSuchbegriffe = nextCell.getStringCellValue();
-					json.put("arztSuchbegriffe", arztSuchbegriffe);
-				}
 			}
-			aerzte.add(json);
-		}
-		try (FileWriter file = new FileWriter("krhs.json")) {
-			file.write(aerzte.toString());
-			file.flush();
-		}
-// 0				Nr
-//				Titel
-//				Name
-//				Vorname
-//				Funktion
-//  5			Fachgebiet
-//	6			weiteres Fachgebiet 1
-//	7			weiteres Fachgebiet 2
-//	8			weiteres Fachgebiet 3
-//				Erwachsene Plan
-//				Erwachsene Not
-//				Kinder Plan
-//				Kinder Not
-//				Kleinkinder Plan
-//				Kleinkiner Not
-//				Seit wann koop.
-//				letzter Kontakt
-//	17			Klinik
-//				Strasse + Nr.
-//				PLZ
-//	20			Ort
-//				Tel Nr
-//				Notfalltelefon
-//				Anästh. kooperativ 
-//				Klinik 2
-//				RAB
-//				Stand RAB
-//				Belegarzt (Ja/Nein)
-// 28			Link Klinikseite
-//				Kommentar
-// 30				Spezielle Kompetenz
-// 31				Suchbegriffe
-//				Zuständiger Betreuer
-//				Focus
-		catch (IOException e) {
-			LOG.error(e.getLocalizedMessage());
 		}
 
+		if (generatetJsonData) {
+			LOG.info("Json Daten Datei " + jsonDateiName + " erzeugt.");
+		} else {
+			LOG.info(zeilen.size() + " gelesene Zeilen aus der Tabelle "
+					+ excelDateiName);
+			LOG.info("Checke nun den Online Status aller URLs ...");
+
+			checkOnlineStatus();
+
+			LOG.info("Online Check abgeschlossen.");
+		}
+
+		return 0;
 	}
 
 	private void verarbeiteZeilen(Iterator<Row> iterator) {
@@ -236,7 +137,7 @@ public class CheckExcelUrls implements Callable<Integer> {
 											// vorhanden sein
 				// Entferne .0 da Spalte evl. als Zahl mit Nachkomma
 				// formatiert
-				Object wert = getCellValue(nextCell);
+				Object wert = Json.getCellValue(nextCell);
 				if (wert != null) {
 					String replace = wert.toString().replace(".0", "");
 					zeile.setId(replace);
@@ -244,7 +145,7 @@ public class CheckExcelUrls implements Callable<Integer> {
 					zeile.setId("");
 				}
 			} else if (columnIndex == spaltenNumme) {
-				zeile.setUrl((String) getCellValue(nextCell));
+				zeile.setUrl((String) Json.getCellValue(nextCell));
 			}
 		}
 		try {
@@ -328,15 +229,4 @@ public class CheckExcelUrls implements Callable<Integer> {
 		return result;
 	}
 
-	private static Object getCellValue(Cell cell) {
-
-		if (cell.getCellTypeEnum() == CellType.STRING) {
-			return cell.getStringCellValue();
-		} else if (cell.getCellTypeEnum() == CellType.BOOLEAN) {
-			return cell.getBooleanCellValue();
-		} else if (cell.getCellTypeEnum() == CellType.NUMERIC) {
-			return cell.getNumericCellValue();
-		}
-		return null;
-	}
 }
