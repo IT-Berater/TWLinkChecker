@@ -4,9 +4,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,6 +68,8 @@ public class Json {
 
 		List<JSONObject> aerzte = new ArrayList<>();
 
+		Set<String> checkNr = new HashSet<>();
+
 		while (iterator.hasNext()) { // über alle Zeilen
 			Row nextRow = iterator.next();
 			Iterator<Cell> cellIterator = nextRow.cellIterator();
@@ -82,6 +86,15 @@ public class Json {
 					if (wert != null) {
 						String replace = wert.toString().replace(".0", "");
 						json.put("arztNr", replace);
+
+						boolean isVorhanden = checkNr.add(wert.toString());
+						if (!isVorhanden) {
+							String nachricht = "Wert schon vorhanden mit ID: "
+									+ replace;
+
+							LOG.error(nachricht);
+							throw new IllegalArgumentException(nachricht);
+						}
 					} else {
 						json.put("arztNr", "");
 					}
@@ -194,7 +207,9 @@ public class Json {
 					json.put("focus", getCellValue(nextCell));
 				}
 			}
-			aerzte.add(json);
+			if (isZeileValid(json)) {
+				aerzte.add(json);
+			}
 		}
 		try (FileWriter file = new FileWriter(exportDateiname)) {
 			file.write(aerzte.toString());
@@ -203,6 +218,17 @@ public class Json {
 			LOG.error(e.getLocalizedMessage());
 		}
 
+	}
+
+	/**
+	 * Nur Sätzte mit arztNr übernehmen, kann vorkommen wenn die Tabelle noch
+	 * evl. leere Zeilen enthält.
+	 * 
+	 * @param json
+	 * @return
+	 */
+	private static boolean isZeileValid(JSONObject json) {
+		return json.has("arztNr");
 	}
 
 	private static JSONObject getSortJSONObject() {
