@@ -54,4 +54,16 @@ public class CheckExcelUrlsTest {
 		int exitCode = cmd.execute();
 		assertEquals(1, exitCode);
 	}
+
+	@Test
+	public void testMainPositivSchreibeJson() throws Exception {
+
+		CheckExcelUrls app = new CheckExcelUrls();
+		CommandLine cmd = new CommandLine(app);
+
+		int exitCode = cmd
+				.execute("-s", "25", "-f", EXCEL_LISTE, "-j", "-d", "junit-data.json");
+		assertEquals(0, exitCode);
+	}
+
 }

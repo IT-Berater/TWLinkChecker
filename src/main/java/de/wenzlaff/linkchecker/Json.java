@@ -17,6 +17,12 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.json.JSONObject;
 
+/**
+ * Verwaltung des Json Exports.
+ * 
+ * @author Thomas Wenzlaff
+ *
+ */
 public class Json {
 
 	private static final Logger LOG = LogManager.getLogger(Json.class);
