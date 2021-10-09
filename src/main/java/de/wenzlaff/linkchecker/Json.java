@@ -67,10 +67,10 @@ public class Json {
 	 * // 33				Focus
 	 * </pre>
 	 * 
-	 * @param iterator
+	 * @param iterator        Zeilen iterator
+	 * @param exportDateiname der Dateiname
 	 */
-	public static void writeJson(Iterator<Row> iterator,
-			String exportDateiname) {
+	public static void writeJson(Iterator<Row> iterator, String exportDateiname) {
 
 		List<JSONObject> aerzte = new ArrayList<>();
 
@@ -95,8 +95,7 @@ public class Json {
 
 						boolean isVorhanden = checkNr.add(wert.toString());
 						if (!isVorhanden) {
-							String nachricht = "Wert schon vorhanden mit ID: "
-									+ replace;
+							String nachricht = "Wert schon vorhanden mit ID: " + replace;
 
 							LOG.error(nachricht);
 							throw new IllegalArgumentException(nachricht);
@@ -178,8 +177,7 @@ public class Json {
 					json.put("arztNotTel", nextCell.getStringCellValue());
 				}
 				if (columnIndex == 23) {
-					json.put("anästhesieKooperativ", nextCell
-							.getStringCellValue());
+					json.put("anästhesieKooperativ", nextCell.getStringCellValue());
 				}
 				if (columnIndex == 24) {
 					json.put("klinik2", nextCell.getStringCellValue());
@@ -200,8 +198,7 @@ public class Json {
 					json.put("kommentar", nextCell.getStringCellValue());
 				}
 				if (columnIndex == 30) {
-					json.put("arztSpezielleKompetenz", nextCell
-							.getStringCellValue());
+					json.put("arztSpezielleKompetenz", nextCell.getStringCellValue());
 				}
 				if (columnIndex == 31) {
 					json.put("arztSuchbegriffe", nextCell.getStringCellValue());
@@ -227,8 +224,8 @@ public class Json {
 	}
 
 	/**
-	 * Nur Sätzte mit arztNr übernehmen, kann vorkommen wenn die Tabelle noch
-	 * evl. leere Zeilen enthält.
+	 * Nur Sätzte mit arztNr übernehmen, kann vorkommen wenn die Tabelle noch evl.
+	 * leere Zeilen enthält.
 	 * 
 	 * @param json
 	 * @return
