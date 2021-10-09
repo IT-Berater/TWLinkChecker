@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.wenzlaff.linkchecker</groupId>
 	<artifactId>de.wenzlaff.linkchecker</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.8</version>
 	<packaging>jar</packaging>
 
 	<name>Thomas Wenzlaff</name>
@@ -72,13 +72,15 @@
 
 	<build>
 		<plugins>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-gpg-plugin</artifactId> 
-				<version>1.6</version> <executions> <execution> <id>sign-artifacts</id> <phase>verify</phase> 
-				<goals> <goal>sign</goal> </goals> </execution> </executions> </plugin> -->
+				<!-- Für Maven Central <plugin> <groupId>org.apache.maven.plugins</groupId> 
+				<artifactId>maven-gpg-plugin</artifactId> <version>3.0.1</version> <executions> 
+				<execution> <id>sign-artifacts</id> <phase>verify</phase> <goals> <goal>sign</goal> 
+				</goals> </execution> </executions> </plugin>
+				--> 
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.3</version>
+				<version>1.6.8</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
@@ -135,7 +137,9 @@
 				</executions>
 			</plugin>
 			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.3.0</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -188,17 +192,17 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>4.1.2</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>4.1.2</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
-			<version>1.8</version>
+			<version>1.9.0</version>
 		</dependency>
 		<!-- Logging -->
 		<dependency>

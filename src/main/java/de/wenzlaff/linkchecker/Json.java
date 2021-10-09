@@ -257,11 +257,11 @@ public class Json {
 
 	public static Object getCellValue(Cell cell) {
 
-		if (cell.getCellTypeEnum() == CellType.STRING) {
+		if (cell.getCellType() == CellType.STRING) {
 			return cell.getStringCellValue();
-		} else if (cell.getCellTypeEnum() == CellType.BOOLEAN) {
+		} else if (cell.getCellType() == CellType.BOOLEAN) {
 			return cell.getBooleanCellValue();
-		} else if (cell.getCellTypeEnum() == CellType.NUMERIC) {
+		} else if (cell.getCellType() == CellType.NUMERIC) {
 			return cell.getNumericCellValue();
 		}
 		return null;
