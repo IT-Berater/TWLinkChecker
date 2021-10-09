@@ -1,12 +1,12 @@
 package de.wenzlaff.linkchecker;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Testklasse für den Excelreader.
