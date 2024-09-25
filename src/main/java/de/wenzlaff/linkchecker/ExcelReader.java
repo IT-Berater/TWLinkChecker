@@ -12,7 +12,6 @@ import org.apache.commons.csv.CSVParser;
 /**
  * Basis Excel Reader für CSV Dateien.
  * 
- * 
  * @author Thomas Wenzlaff
  */
 public class ExcelReader {

@@ -9,7 +9,7 @@ Excel Link checker
 
 Programm zum checken von URLs in Exceltabellen. Es wird die Syntax und die Erreichbarkeit der URLs überprüft.
 
-Braucht nun mindestens Java 11.
+Braucht nun mindestens Java 21.
 
 Programmaufruf: 
 

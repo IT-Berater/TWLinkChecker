@@ -65,6 +65,7 @@ public class Json {
 	 * // 31			Suchbegriffe
 	 * // 32				Zuständiger Betreuer
 	 * // 33				Focus
+	 * // 34            EMail
 	 * </pre>
 	 * 
 	 * @param iterator        Zeilen iterator
@@ -209,6 +210,9 @@ public class Json {
 				if (columnIndex == 33) {
 					json.put("focus", getCellValue(nextCell));
 				}
+				if (columnIndex == 34) {
+					json.put("eMail", getCellValue(nextCell));
+				}
 			}
 			if (isZeileValid(json)) {
 				aerzte.add(json);
@@ -220,7 +224,6 @@ public class Json {
 		} catch (IOException e) {
 			LOG.error(e.getLocalizedMessage());
 		}
-
 	}
 
 	/**

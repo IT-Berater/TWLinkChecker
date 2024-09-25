@@ -31,8 +31,8 @@ public class CheckExcelUrlsTest {
 		CheckExcelUrls app = new CheckExcelUrls();
 		CommandLine cmd = new CommandLine(app);
 
-		int exitCode = cmd.execute("--Version");
-		assertEquals(2, exitCode);
+		int exitCode = cmd.execute("--version");
+		assertEquals(0, exitCode);
 	}
 
 	@Test
@@ -61,8 +61,7 @@ public class CheckExcelUrlsTest {
 		CheckExcelUrls app = new CheckExcelUrls();
 		CommandLine cmd = new CommandLine(app);
 
-		int exitCode = cmd
-				.execute("-s", "25", "-f", EXCEL_LISTE, "-j", "-d", "junit-data.json");
+		int exitCode = cmd.execute("-s", "25", "-f", EXCEL_LISTE, "-j", "-d", "junit-data.json");
 		assertEquals(0, exitCode);
 	}
 

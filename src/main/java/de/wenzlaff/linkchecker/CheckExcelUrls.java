@@ -29,13 +29,11 @@ import picocli.CommandLine.Option;
  * 
  * @author Thomas Wenzlaff
  */
-@Command(name = "CheckExcelUrls", mixinStandardHelpOptions = true, version = "CheckExcelUrls 1.1", description = "Untersucht eine Exceldatei auf gültige URLs in einer Spalte", showDefaultValues = true, footer = {
-		"@|fg(green) Thomas Wenzlaff|@",
-		"@|fg(red),bold http://www.wenzlaff.info|@" })
+@Command(name = "CheckExcelUrls", mixinStandardHelpOptions = true, version = "CheckExcelUrls 1.2", description = "Untersucht eine Exceldatei auf gültige URLs in einer Spalte", showDefaultValues = true, footer = {
+		"@|fg(green) Thomas Wenzlaff|@", "@|fg(red),bold http://www.wenzlaff.info|@" })
 public class CheckExcelUrls implements Callable<Integer> {
 
-	private static final Logger LOG = LogManager
-			.getLogger(CheckExcelUrls.class);
+	private static final Logger LOG = LogManager.getLogger(CheckExcelUrls.class);
 
 	private static final int TIMEOUT_IN_MILLISEKUNDEN = 5000;
 	private static final String TRENNZEICHEN = ", ";
@@ -44,27 +42,22 @@ public class CheckExcelUrls implements Callable<Integer> {
 
 	private static List<Zeile> zeilen;
 
-	@Option(names = { "-s",
-			"--spaltennummer" }, description = "die Spalte Nummer die verwendet werden soll", defaultValue = "28")
+	@Option(names = { "-s", "--spaltennummer" }, description = "die Spalte Nummer die verwendet werden soll", defaultValue = "28")
 	private int spaltenNumme;
 
-	@Option(names = { "-f",
-			"--execldateiname" }, description = "der Dateiname der Exceldatei die untersucht werden soll", defaultValue = "exceldatei.xlsx")
+	@Option(names = { "-f", "--execldateiname" }, description = "der Dateiname der Exceldatei die untersucht werden soll", defaultValue = "exceldatei.xlsx")
 	private String excelDateiName;
 
-	@Option(names = { "-j",
-			"--json" }, description = "Ist das Flag gesetzt wird eine Json Daten Datei erzeugt und keine Online Prüfung durchgeführt")
+	@Option(names = { "-j", "--json" }, description = "Ist das Flag gesetzt wird eine Json Daten Datei erzeugt und keine Online Prüfung durchgeführt")
 	private boolean generatetJsonData;
 
-	@Option(names = { "-d",
-			"--datadateiname" }, description = "der Dateiname der Exportdatei für den Json Export", defaultValue = "data.json")
+	@Option(names = { "-d", "--datadateiname" }, description = "der Dateiname der Exportdatei für den Json Export", defaultValue = "data.json")
 	private String jsonDateiName;
 
 	/**
 	 * Start des Url Checker.
 	 * 
-	 * @param args Spalte die Überprüft werden soll und der Dateiname Aufruf
-	 *             z.B.:
+	 * @param args Spalte die Überprüft werden soll und der Dateiname Aufruf z.B.:
 	 * 
 	 *             de.wenzlaff.linkchecker.CheckExcelUrls -s 28 -f
 	 *             /Users/TWLinkChecker/exceldatei.xlsx
@@ -81,12 +74,9 @@ public class CheckExcelUrls implements Callable<Integer> {
 		zeilen = new ArrayList<>();
 
 		LOG.info("Lese alle Zeilen aus der Excel Datei " + excelDateiName);
-		LOG.info("Validiere die " + spaltenNumme
-				+ ". Spalte in der Excel-Datei mit Namen: "
-				+ CellReference.convertNumToColString(spaltenNumme));
+		LOG.info("Validiere die " + spaltenNumme + ". Spalte in der Excel-Datei mit Namen: " + CellReference.convertNumToColString(spaltenNumme));
 
-		try (FileInputStream inputStream = new FileInputStream(
-				new File(excelDateiName))) {
+		try (FileInputStream inputStream = new FileInputStream(new File(excelDateiName))) {
 
 			try (Workbook workbook = new XSSFWorkbook(inputStream)) {
 				Sheet firstSheet = workbook.getSheetAt(0);
@@ -110,8 +100,7 @@ public class CheckExcelUrls implements Callable<Integer> {
 		if (generatetJsonData) {
 			LOG.info("Json Daten Datei " + jsonDateiName + " erzeugt.");
 		} else {
-			LOG.info(zeilen.size() + " gelesene Zeilen aus der Tabelle "
-					+ excelDateiName);
+			LOG.info(zeilen.size() + " gelesene Zeilen aus der Tabelle " + excelDateiName);
 			LOG.info("Checke nun den Online Status aller URLs ...");
 
 			checkOnlineStatus();
@@ -168,8 +157,7 @@ public class CheckExcelUrls implements Callable<Integer> {
 
 		int fehlerNr = 1;
 
-		for (Iterator<Zeile> zeilenIterator = zeilen.iterator(); zeilenIterator
-				.hasNext();) {
+		for (Iterator<Zeile> zeilenIterator = zeilen.iterator(); zeilenIterator.hasNext();) {
 			Zeile zeile = zeilenIterator.next();
 
 			URL webseite = null;
@@ -178,14 +166,11 @@ public class CheckExcelUrls implements Callable<Integer> {
 				webseite = new URL(zeile.getUrl());
 
 				if (getStatus(webseite.toString()).contains(STATUS_ERROR)) {
-					LOG.error("Fehler Nr. " + fehlerNr + " ZeilenId: "
-							+ zeile.getId() + "\t"
-							+ getStatus(webseite.toString()));
+					LOG.error("Fehler Nr. " + fehlerNr + " ZeilenId: " + zeile.getId() + "\t" + getStatus(webseite.toString()));
 					fehlerNr++;
 				}
 			} catch (Exception e) {
-				LOG.error("Fehler Nr. " + fehlerNr + " Fehler " + e.getMessage()
-						+ " in Zeile: " + zeile + " mit URL: " + webseite);
+				LOG.error("Fehler Nr. " + fehlerNr + " Fehler " + e.getMessage() + " in Zeile: " + zeile + " mit URL: " + webseite);
 				fehlerNr++;
 			}
 		}
@@ -207,18 +192,15 @@ public class CheckExcelUrls implements Callable<Integer> {
 		String result = "";
 		try {
 			URL siteURL = new URL(url);
-			HttpURLConnection connection = (HttpURLConnection) siteURL
-					.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) siteURL.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setConnectTimeout(TIMEOUT_IN_MILLISEKUNDEN);
 			connection.connect();
 
 			int code = connection.getResponseCode();
-			if (code == HttpURLConnection.HTTP_OK
-					|| code <= HttpURLConnection.HTTP_USE_PROXY) {
+			if (code == HttpURLConnection.HTTP_OK || code <= HttpURLConnection.HTTP_USE_PROXY) {
 				result = " OK, " + code + TRENNZEICHEN;
-			} else if (code >= HttpURLConnection.HTTP_BAD_REQUEST
-					|| code <= HttpURLConnection.HTTP_VERSION) {
+			} else if (code >= HttpURLConnection.HTTP_BAD_REQUEST || code <= HttpURLConnection.HTTP_VERSION) {
 				result = " " + STATUS_ERROR + ", " + code + TRENNZEICHEN + url;
 			} else {
 				result = TRENNZEICHEN + code + TRENNZEICHEN;
